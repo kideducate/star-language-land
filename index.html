@@ -112,6 +112,11 @@ body{font-family:'Noto Sans TC','Quicksand',sans-serif;color:var(--ink);}
   background:var(--sun);border:none;border-radius:16px;padding:8px 14px;
   font-size:18px;cursor:pointer;margin-top:4px;box-shadow:0 3px 0 rgba(43,33,64,0.12);
 }
+.speak-btn:disabled{opacity:.4;cursor:default;}
+.record-row{display:flex;gap:8px;margin-top:8px;justify-content:center;flex-wrap:wrap;}
+.record-row .speak-btn{font-size:14px;padding:8px 12px;}
+.speak-btn.recording{background:var(--red);color:#fff;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
 .dots{display:flex;justify-content:center;gap:6px;margin:16px 0;}
 .dot{width:9px;height:9px;border-radius:50%;background:#cfc6e6;}
 .dot.active{background:var(--grape);}
@@ -212,6 +217,10 @@ button:focus-visible{outline:3px solid var(--grape);outline-offset:2px;}
         <div class="flash-word" id="flashWord"></div>
         <div class="flash-pinyin" id="flashPinyin"></div>
         <button class="speak-btn" id="flashSpeak">🔊 唸一次</button>
+        <div class="record-row">
+          <button class="speak-btn" id="flashRecordBtn">🎤 錄音</button>
+          <button class="speak-btn" id="flashPlayBtn" disabled>▶️ 播放</button>
+        </div>
       </div>
       <button class="nav-btn" id="flashNext" aria-label="下一張">›</button>
     </div>
@@ -250,6 +259,10 @@ button:focus-visible{outline:3px solid var(--grape);outline-offset:2px;}
         <div class="flash-pinyin" id="storyPinyin"></div>
         <p id="storyText" style="font-size:15px;line-height:1.8;margin:10px 0;text-align:left;"></p>
         <button class="speak-btn" id="storySpeak">🔊 唸故事</button>
+        <div class="record-row">
+          <button class="speak-btn" id="storyRecordBtn">🎤 錄音</button>
+          <button class="speak-btn" id="storyPlayBtn" disabled>▶️ 播放</button>
+        </div>
         <div id="storyQuiz" style="margin-top:16px;width:100%;"></div>
       </div>
       <button class="nav-btn" id="storyNext" aria-label="下一則">›</button>
@@ -367,6 +380,59 @@ function speak(text, lang){
     speechSynthesis.cancel();
     speechSynthesis.speak(u);
   }catch(e){}
+}
+
+// ---- Voice recording (word / story practice) ----
+const recordings = {};
+function initRecordControls(recordBtn, playBtn, getKey){
+  let recorder=null, chunks=[], recording=false, stream=null;
+  recordBtn.addEventListener('click', async ()=>{
+    if(recording){ recorder.stop(); return; }
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      alert('這個瀏覽器不支援錄音功能。');
+      return;
+    }
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    }catch(err){
+      alert('無法使用麥克風，請確認已允許麥克風權限，且網址是 https 開頭（或 localhost）。');
+      return;
+    }
+    chunks=[];
+    try{
+      recorder = new MediaRecorder(stream);
+    }catch(err){
+      alert('這個瀏覽器不支援錄音功能。');
+      stream.getTracks().forEach(t=>t.stop());
+      return;
+    }
+    recorder.ondataavailable = e=>{ if(e.data && e.data.size>0) chunks.push(e.data); };
+    recorder.onstop = ()=>{
+      const type = recorder.mimeType || 'audio/webm';
+      const blob = new Blob(chunks, {type});
+      const key = getKey();
+      if(recordings[key]) URL.revokeObjectURL(recordings[key]);
+      recordings[key] = URL.createObjectURL(blob);
+      playBtn.disabled = false;
+      recordBtn.textContent = '🎤 錄音';
+      recordBtn.classList.remove('recording');
+      recording = false;
+      stream.getTracks().forEach(t=>t.stop());
+    };
+    recorder.start();
+    recording = true;
+    recordBtn.textContent = '⏹️ 停止錄音';
+    recordBtn.classList.add('recording');
+  });
+  playBtn.addEventListener('click', ()=>{
+    const key = getKey();
+    if(recordings[key]) new Audio(recordings[key]).play();
+  });
+}
+function refreshRecordUI(recordBtn, playBtn, key){
+  recordBtn.textContent = '🎤 錄音';
+  recordBtn.classList.remove('recording');
+  playBtn.disabled = !recordings[key];
 }
 
 const state = { profile:null, lang:null, mode:null, category:null, stars:0 };
@@ -501,6 +567,7 @@ function renderFlashCard(){
   updateFlashDots();
   const card = $('#flashCard');
   card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop');
+  refreshRecordUI($('#flashRecordBtn'), $('#flashPlayBtn'), 'flash_'+state.lang+'_'+item.w);
   speak(item.w, state.lang);
 }
 $('#flashPrev').addEventListener('click', ()=>{
@@ -514,6 +581,7 @@ $('#flashNext').addEventListener('click', ()=>{
 $('#flashSpeak').addEventListener('click', ()=>{
   speak(flashItems[flashIndex].w, state.lang);
 });
+initRecordControls($('#flashRecordBtn'), $('#flashPlayBtn'), ()=> 'flash_'+state.lang+'_'+flashItems[flashIndex].w);
 $('#flashFinish').addEventListener('click', ()=>{
   addStars(1);
   showCelebrate('太棒了，都認識了！');
@@ -700,6 +768,7 @@ function renderStory(){
   renderStoryQuiz(item);
   const card = $('#storyCard');
   card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop');
+  refreshRecordUI($('#storyRecordBtn'), $('#storyPlayBtn'), 'story_'+item.title);
   speak(item.title, 'zh');
 }
 function renderStoryQuiz(item){
@@ -749,6 +818,7 @@ $('#storyNext').addEventListener('click', ()=>{
 $('#storySpeak').addEventListener('click', ()=>{
   speak(IDIOMS[storyIndex].story, 'zh');
 });
+initRecordControls($('#storyRecordBtn'), $('#storyPlayBtn'), ()=> 'story_'+IDIOMS[storyIndex].title);
 $('#btnBackFromStorylist').addEventListener('click', ()=> showScreen('screen-menu'));
 $('#btnBackFromStory').addEventListener('click', ()=> showScreen('screen-storylist'));
 

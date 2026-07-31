@@ -1,4 +1,4 @@
-const CACHE_NAME = 'star-language-land-v2';
+const CACHE_NAME = 'star-language-land-v3';
 const ASSETS = [
   './',
   './index.html',
