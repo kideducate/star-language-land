@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>星星語言樂園</title>
+<meta name="description" content="給小朋友的中英文互動學習遊戲">
+<meta name="theme-color" content="#9B7EDE">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="語言樂園">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&family=ZCOOL+KuaiLe&family=Quicksand:wght@500;600;700&family=Noto+Sans+TC:wght@500;700&display=swap');
+
+:root{
+  --sky:#EAF6FF;
+  --sun:#FFC93C;
+  --coral:#FF6F61;
+  --grape:#9B7EDE;
+  --leaf:#4CAF83;
+  --ink:#2B2140;
+  --card:#FFFFFF;
+  --red:#FF5A5A;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--sky);min-height:100vh;}
+body{font-family:'Noto Sans TC','Quicksand',sans-serif;color:var(--ink);}
+.app{
+  background:var(--sky);
+  padding:14px 14px 40px;
+  max-width:720px;
+  margin:0 auto;
+  min-height:100vh;
+}
+.hidden{display:none !important;}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;padding-top:6px;
+}
+.icon-btn{
+  background:var(--card);border:none;border-radius:16px;
+  width:44px;height:44px;font-size:20px;cursor:pointer;
+  box-shadow:0 3px 0 rgba(43,33,64,0.15);
+}
+.icon-btn:active{transform:translateY(2px);box-shadow:none;}
+.brand{
+  font-family:'Baloo 2',sans-serif;font-weight:700;font-size:18px;
+  display:flex;align-items:center;gap:6px;
+}
+.stars-pill{
+  background:var(--card);border-radius:20px;padding:8px 14px;
+  font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;
+  box-shadow:0 3px 0 rgba(43,33,64,0.1);
+  transition:transform .25s;
+}
+.stars-pill.burst{transform:scale(1.25);}
+.hero-title{
+  font-family:'Baloo 2',sans-serif;font-weight:700;font-size:26px;
+  text-align:center;margin:18px 0 4px;
+}
+.hero-sub{text-align:center;color:#6a5f80;margin:0 0 20px;font-size:15px;font-weight:600;}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:480px;margin:0 auto;}
+.profile-card,.mode-card,.category-card{
+  background:var(--card);border:none;border-radius:22px;padding:22px 12px;
+  display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;
+  box-shadow:0 5px 0 rgba(43,33,64,0.15);
+  transition:transform .15s;
+  font-family:'Quicksand',sans-serif;font-weight:700;font-size:15px;color:var(--ink);
+}
+.profile-card:hover,.mode-card:hover,.category-card:hover{transform:translateY(-3px);}
+.profile-card:active,.mode-card:active,.category-card:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(43,33,64,0.15);}
+.profile-emoji,.mode-emoji{font-size:46px;}
+.category-emoji{font-size:38px;}
+.section-title{
+  font-family:'Baloo 2',sans-serif;font-weight:700;font-size:20px;
+  text-align:center;margin:6px 0 16px;
+}
+.lang-toggle{display:flex;justify-content:center;gap:10px;margin-bottom:18px;}
+.lang-btn{
+  border:none;border-radius:18px;padding:10px 22px;font-weight:700;font-size:15px;
+  background:var(--card);color:var(--ink);cursor:pointer;
+  box-shadow:0 3px 0 rgba(43,33,64,0.12);
+}
+.lang-btn.active{background:var(--grape);color:#fff;}
+.mode-grid,.category-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;
+}
+.back-btn{
+  background:none;border:none;color:var(--ink);font-weight:700;font-size:14px;
+  cursor:pointer;margin-bottom:6px;padding:6px 0;
+}
+.flash-wrap{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:10px;}
+.nav-btn{
+  background:var(--card);border:none;border-radius:50%;width:48px;height:48px;
+  font-size:22px;cursor:pointer;box-shadow:0 3px 0 rgba(43,33,64,0.15);flex:none;
+}
+.flashcard{
+  background:var(--card);border-radius:26px;padding:30px 20px;width:260px;min-height:260px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  box-shadow:0 6px 0 rgba(43,33,64,0.15);text-align:center;
+}
+.flashcard.pop{animation:popIn .35s ease;}
+@keyframes popIn{0%{transform:scale(.85);opacity:0;}100%{transform:scale(1);opacity:1;}}
+.flash-emoji{font-size:64px;}
+.flash-word{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:26px;}
+.flash-pinyin{font-family:'ZCOOL KuaiLe',sans-serif;font-size:16px;color:#6a5f80;}
+.speak-btn{
+  background:var(--sun);border:none;border-radius:16px;padding:8px 14px;
+  font-size:18px;cursor:pointer;margin-top:4px;box-shadow:0 3px 0 rgba(43,33,64,0.12);
+}
+.dots{display:flex;justify-content:center;gap:6px;margin:16px 0;}
+.dot{width:9px;height:9px;border-radius:50%;background:#cfc6e6;}
+.dot.active{background:var(--grape);}
+.finish-btn{
+  display:block;margin:0 auto;background:var(--leaf);color:#fff;border:none;
+  border-radius:20px;padding:12px 24px;font-weight:700;font-size:15px;cursor:pointer;
+  box-shadow:0 4px 0 rgba(43,33,64,0.15);font-family:'Baloo 2',sans-serif;
+}
+.match-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin-top:6px;
+}
+.match-card{
+  background:var(--card);border:none;border-radius:16px;padding:14px 6px;min-height:64px;
+  font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 3px 0 rgba(43,33,64,0.15);
+  display:flex;align-items:center;justify-content:center;text-align:center;
+}
+.match-card.word{font-size:14px;font-family:'Quicksand',sans-serif;}
+.match-card.selected{background:var(--sun);}
+.match-card.matched{background:var(--leaf);color:#fff;opacity:.55;box-shadow:none;}
+.match-card.wrong{background:var(--red);color:#fff;}
+.match-card:disabled{cursor:default;}
+.spell-hint{display:flex;align-items:center;justify-content:center;gap:14px;margin:10px 0 22px;}
+.spell-emoji{font-size:54px;}
+.spell-slots{display:flex;justify-content:center;gap:10px;margin-bottom:22px;transition:transform .1s;}
+.spell-slots.wrong{animation:shake .4s;}
+.spell-slots.correct .spell-slot{background:var(--leaf);color:#fff;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
+.spell-slot{
+  width:52px;height:52px;border-radius:14px;background:var(--card);
+  display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;
+  box-shadow:inset 0 0 0 2px #cfc6e6;cursor:pointer;
+}
+.spell-slot.filled{box-shadow:inset 0 0 0 2px var(--grape);}
+.spell-tray{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;}
+.spell-tile{
+  width:52px;height:52px;border-radius:14px;background:var(--sun);border:none;
+  font-size:22px;font-weight:700;cursor:pointer;box-shadow:0 3px 0 rgba(43,33,64,0.15);
+}
+.spell-tile.used{visibility:hidden;}
+.celebrate{
+  position:fixed;inset:0;background:rgba(43,33,64,0.45);
+  display:flex;align-items:center;justify-content:center;z-index:50;
+}
+.celebrate-card{
+  background:var(--card);border-radius:24px;padding:30px;text-align:center;max-width:280px;
+}
+.celebrate-emoji{font-size:48px;}
+.celebrate-text{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:18px;margin:10px 0 18px;}
+.btn-primary{
+  background:var(--coral);color:#fff;border:none;border-radius:18px;padding:12px 26px;
+  font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 4px 0 rgba(43,33,64,0.15);
+  font-family:'Baloo 2',sans-serif;
+}
+@media(prefers-reduced-motion:reduce){.flashcard.pop,.stars-pill.burst,.spell-slots.wrong{animation:none;}}
+button:focus-visible{outline:3px solid var(--grape);outline-offset:2px;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <button class="icon-btn" id="btnHome" aria-label="回首頁">🏠</button>
+    <div class="brand"><span>🌟</span>星星語言樂園</div>
+    <div class="stars-pill" id="starsPill">⭐ <span id="starCount">0</span></div>
+  </div>
+
+  <section id="screen-profile" class="screen">
+    <h1 class="hero-title">歡迎來到語言樂園！</h1>
+    <p class="hero-sub">選擇小朋友，開始今天的學習冒險吧</p>
+    <div class="profile-grid">
+      <button class="profile-card" data-age="4"><span class="profile-emoji">🧸</span>4歲・幼幼班</button>
+      <button class="profile-card" data-age="6"><span class="profile-emoji">🎒</span>6歲・小一</button>
+    </div>
+  </section>
+
+  <section id="screen-menu" class="screen hidden">
+    <h2 class="section-title" id="menuTitle"></h2>
+    <div class="lang-toggle">
+      <button class="lang-btn" data-lang="zh">中文</button>
+      <button class="lang-btn" data-lang="en">English</button>
+    </div>
+    <div class="mode-grid" id="modeGrid"></div>
+  </section>
+
+  <section id="screen-category" class="screen hidden">
+    <button class="back-btn" id="btnBackToMenu">← 返回</button>
+    <h2 class="section-title" id="categoryTitle"></h2>
+    <div class="category-grid" id="categoryGrid"></div>
+  </section>
+
+  <section id="screen-flashcard" class="screen hidden">
+    <button class="back-btn" id="btnBackFromFlash">← 返回</button>
+    <h2 class="section-title" id="flashCategoryTitle"></h2>
+    <div class="flash-wrap">
+      <button class="nav-btn" id="flashPrev" aria-label="上一張">‹</button>
+      <div class="flashcard" id="flashCard">
+        <div class="flash-emoji" id="flashEmoji"></div>
+        <div class="flash-word" id="flashWord"></div>
+        <div class="flash-pinyin" id="flashPinyin"></div>
+        <button class="speak-btn" id="flashSpeak">🔊 唸一次</button>
+      </div>
+      <button class="nav-btn" id="flashNext" aria-label="下一張">›</button>
+    </div>
+    <div class="dots" id="flashDots"></div>
+    <button class="finish-btn" id="flashFinish">🌟 我學會了！</button>
+  </section>
+
+  <section id="screen-match" class="screen hidden">
+    <button class="back-btn" id="btnBackFromMatch">← 返回</button>
+    <h2 class="section-title" id="matchCategoryTitle"></h2>
+    <p style="text-align:center;color:#6a5f80;font-weight:600;margin-top:-8px;">點一張圖片卡，再點對應的文字卡</p>
+    <div class="match-grid" id="matchGrid"></div>
+  </section>
+
+  <section id="screen-spell" class="screen hidden">
+    <button class="back-btn" id="btnBackFromSpell">← 返回</button>
+    <h2 class="section-title" id="spellCategoryTitle"></h2>
+    <div class="spell-hint" id="spellHint"></div>
+    <div class="spell-slots" id="spellSlots"></div>
+    <div class="spell-tray" id="spellTray"></div>
+  </section>
+
+  <section id="screen-storylist" class="screen hidden">
+    <button class="back-btn" id="btnBackFromStorylist">← 返回</button>
+    <h2 class="section-title">選一個成語故事</h2>
+    <div class="category-grid" id="storyListGrid"></div>
+  </section>
+
+  <section id="screen-story" class="screen hidden">
+    <button class="back-btn" id="btnBackFromStory">← 返回</button>
+    <div class="flash-wrap">
+      <button class="nav-btn" id="storyPrev" aria-label="上一則">‹</button>
+      <div class="flashcard" id="storyCard" style="width:300px;min-height:auto;padding:24px 20px;">
+        <div class="flash-emoji" id="storyEmoji"></div>
+        <div class="flash-word" id="storyTitle"></div>
+        <div class="flash-pinyin" id="storyPinyin"></div>
+        <p id="storyText" style="font-size:15px;line-height:1.8;margin:10px 0;text-align:left;"></p>
+        <button class="speak-btn" id="storySpeak">🔊 唸故事</button>
+        <div id="storyQuiz" style="margin-top:16px;width:100%;"></div>
+      </div>
+      <button class="nav-btn" id="storyNext" aria-label="下一則">›</button>
+    </div>
+  </section>
+</div>
+
+<div id="celebrate" class="celebrate hidden">
+  <div class="celebrate-card">
+    <div class="celebrate-emoji">🎉</div>
+    <div class="celebrate-text" id="celebrateText"></div>
+    <button class="btn-primary" id="celebrateClose">太棒了！</button>
+  </div>
+</div>
+
+<script>
+(function(){
+const DATA = {
+  en:{
+    4:{
+      animals:[{w:'Dog',e:'🐶'},{w:'Cat',e:'🐱'},{w:'Elephant',e:'🐘'},{w:'Lion',e:'🦁'},{w:'Rabbit',e:'🐰'},{w:'Fish',e:'🐟'}],
+      colors:[{w:'Red',e:'🔴'},{w:'Blue',e:'🔵'},{w:'Yellow',e:'🟡'},{w:'Green',e:'🟢'},{w:'Orange',e:'🟠'},{w:'Purple',e:'🟣'}],
+      numbers:[{w:'One',e:'1️⃣'},{w:'Two',e:'2️⃣'},{w:'Three',e:'3️⃣'},{w:'Four',e:'4️⃣'},{w:'Five',e:'5️⃣'}],
+      fruits:[{w:'Apple',e:'🍎'},{w:'Banana',e:'🍌'},{w:'Grape',e:'🍇'},{w:'Strawberry',e:'🍓'},{w:'Watermelon',e:'🍉'},{w:'Orange',e:'🍊'}]
+    },
+    6:{
+      animals:[{w:'Dog',e:'🐶'},{w:'Cat',e:'🐱'},{w:'Elephant',e:'🐘'},{w:'Lion',e:'🦁'},{w:'Rabbit',e:'🐰'},{w:'Fish',e:'🐟'},{w:'Bear',e:'🐻'},{w:'Tiger',e:'🐯'}],
+      colors:[{w:'Red',e:'🔴'},{w:'Blue',e:'🔵'},{w:'Yellow',e:'🟡'},{w:'Green',e:'🟢'},{w:'Orange',e:'🟠'},{w:'Purple',e:'🟣'},{w:'Black',e:'⚫'},{w:'White',e:'⚪'}],
+      numbers:[{w:'One',e:'1️⃣'},{w:'Two',e:'2️⃣'},{w:'Three',e:'3️⃣'},{w:'Four',e:'4️⃣'},{w:'Five',e:'5️⃣'},{w:'Six',e:'6️⃣'},{w:'Seven',e:'7️⃣'},{w:'Eight',e:'8️⃣'},{w:'Nine',e:'9️⃣'},{w:'Ten',e:'🔟'}],
+      fruits:[{w:'Apple',e:'🍎'},{w:'Banana',e:'🍌'},{w:'Grape',e:'🍇'},{w:'Strawberry',e:'🍓'},{w:'Watermelon',e:'🍉'},{w:'Orange',e:'🍊'},{w:'Pineapple',e:'🍍'},{w:'Peach',e:'🍑'}],
+      family:[{w:'Mother',e:'👩'},{w:'Father',e:'👨'},{w:'Sister',e:'👧'},{w:'Brother',e:'👦'},{w:'Baby',e:'👶'},{w:'Grandma',e:'👵'}],
+      weather:[{w:'Sunny',e:'☀️'},{w:'Rainy',e:'🌧️'},{w:'Cloudy',e:'☁️'},{w:'Snowy',e:'❄️'},{w:'Windy',e:'🌬️'}],
+      school:[{w:'Book',e:'📖'},{w:'Pencil',e:'✏️'},{w:'Backpack',e:'🎒'},{w:'Teacher',e:'🧑‍🏫'},{w:'Chair',e:'🪑'}]
+    }
+  },
+  zh:{
+    4:{
+      characters:[{w:'大',p:'ㄉㄚˋ',e:'🐘'},{w:'小',p:'ㄒㄧㄠˇ',e:'🐭'},{w:'上',p:'ㄕㄤˋ',e:'⬆️'},{w:'下',p:'ㄒㄧㄚˋ',e:'⬇️'},{w:'水',p:'ㄕㄨㄟˇ',e:'💧'},{w:'火',p:'ㄏㄨㄛˇ',e:'🔥'},{w:'山',p:'ㄕㄢ',e:'⛰️'},{w:'人',p:'ㄖㄣˊ',e:'🧍'},{w:'口',p:'ㄎㄡˇ',e:'👄'},{w:'手',p:'ㄕㄡˇ',e:'✋'},{w:'日',p:'ㄖˋ',e:'☀️'},{w:'月',p:'ㄩㄝˋ',e:'🌙'}],
+      colors:[{w:'紅色',p:'ㄏㄨㄥˊ ㄙㄜˋ',e:'🔴'},{w:'藍色',p:'ㄌㄢˊ ㄙㄜˋ',e:'🔵'},{w:'黃色',p:'ㄏㄨㄤˊ ㄙㄜˋ',e:'🟡'},{w:'綠色',p:'ㄌㄩˋ ㄙㄜˋ',e:'🟢'}]
+    },
+    6:{
+      life:[{w:'你好',p:'ㄋㄧˇ ㄏㄠˇ',e:'👋'},{w:'謝謝',p:'ㄒㄧㄝˋ ㄒㄧㄝ˙',e:'🙏'},{w:'學校',p:'ㄒㄩㄝˊ ㄒㄧㄠˋ',e:'🏫'},{w:'老師',p:'ㄌㄠˇ ㄕ',e:'🧑‍🏫'},{w:'朋友',p:'ㄆㄥˊ ㄧㄡˇ',e:'🤝'},{w:'家人',p:'ㄐㄧㄚ ㄖㄣˊ',e:'👨‍👩‍👧'},{w:'快樂',p:'ㄎㄨㄞˋ ㄌㄜˋ',e:'😊'},{w:'星期',p:'ㄒㄧㄥ ㄑㄧˊ',e:'📅'}],
+      nature:[{w:'蘋果',p:'ㄆㄧㄥˊ ㄍㄨㄛˇ',e:'🍎'},{w:'香蕉',p:'ㄒㄧㄤ ㄐㄧㄠ',e:'🍌'},{w:'貓咪',p:'ㄇㄠ ㄇㄧ',e:'🐱'},{w:'狗狗',p:'ㄍㄡˇ ㄍㄡˇ',e:'🐶'}]
+    }
+  }
+};
+
+const CATLABELS = {
+  en:{animals:'動物 Animals',colors:'顏色 Colors',numbers:'數字 Numbers',fruits:'水果 Fruits',family:'家人 Family',weather:'天氣 Weather',school:'學校 School'},
+  zh:{characters:'基礎漢字',colors:'顏色詞語',life:'生活用語',nature:'動物水果'}
+};
+
+const IDIOMS = [
+  {
+    title:'守株待兔', pinyin:'ㄕㄡˇ ㄓㄨ ㄉㄞˋ ㄊㄨˋ', emoji:'🐇🌳',
+    story:'從前有個農夫,看到一隻兔子跑得太快,不小心撞到樹上死掉了。農夫很高興,把兔子帶回家煮來吃。從此以後,他每天都坐在樹旁邊,希望再撿到一隻兔子,結果田地都荒廢了,兔子也沒有再出現。',
+    meaning:'比喻死守著舊方法,不知道要努力想辦法,只想不勞而獲。',
+    quiz:{q:'農夫後來為什麼每天坐在樹旁邊?', options:['等兔子自己撞過來','要種樹','要睡午覺'], answer:0}
+  },
+  {
+    title:'拔苗助長', pinyin:'ㄅㄚˊ ㄇㄧㄠˊ ㄓㄨˋ ㄓㄤˇ', emoji:'🌱✋',
+    story:'有個農夫種了稻苗,覺得它們長得太慢了。他每天去田裡把每一株苗都往上拔一點,回家還跟家人說今天幫助苗長高了。結果隔天去看,所有的苗都枯萎死掉了。',
+    meaning:'比喻不管事情的規律,急著求快,反而把事情弄糟了。',
+    quiz:{q:'農夫把苗往上拔之後,發生了什麼事?', options:['苗長得更高','苗都枯萎了','苗變成花'], answer:1}
+  },
+  {
+    title:'狐假虎威', pinyin:'ㄏㄨˊ ㄐㄧㄚˇ ㄏㄨˇ ㄨㄟ', emoji:'🦊🐯',
+    story:'老虎抓到一隻狐狸,正要吃掉牠。狐狸說:「天神派我來當百獸之王,你吃了我會被懲罰!不信你跟我走一趟,看看動物們是不是都怕我。」老虎跟著狐狸走,森林裡的動物看到老虎都嚇得逃跑,老虎以為牠們是怕狐狸,就放走了狐狸。',
+    meaning:'比喻借著別人的權勢來嚇唬人。',
+    quiz:{q:'森林裡的動物們真正害怕的是誰?', options:['狐狸','老虎','天神'], answer:1}
+  },
+  {
+    title:'井底之蛙', pinyin:'ㄐㄧㄥˇ ㄉㄧˇ ㄓ ㄨㄚ', emoji:'🐸🕳️',
+    story:'有一隻青蛙住在井底,牠覺得自己看到的那一小片天空就是全世界。有一天,一隻從海邊來的大海龜告訴牠,外面的大海有多麼廣闊,青蛙聽了非常驚訝,才知道世界比自己想的大很多。',
+    meaning:'比喻眼界狹小,見識不廣的人。',
+    quiz:{q:'青蛙為什麼覺得井口的天空就是全世界?', options:['牠問過大海龜','牠只住在井裡,沒看過外面','牠去過大海'], answer:1}
+  },
+  {
+    title:'畫蛇添足', pinyin:'ㄏㄨㄚˋ ㄕㄜˊ ㄊㄧㄢ ㄗㄨˊ', emoji:'🐍✏️',
+    story:'幾個人比賽畫蛇,誰先畫完誰就能喝酒。有個人最快畫完了,但他覺得時間還很多,就得意地幫蛇畫上四隻腳。結果別人畫完了,說:「蛇本來就沒有腳,你畫錯了!」那壺酒就被別人喝走了。',
+    meaning:'比喻多此一舉,反而把事情弄糟。',
+    quiz:{q:'那個人畫完蛇之後,又多做了什麼事?', options:['幫蛇畫上腳','把畫擦掉','喝酒慶祝'], answer:0}
+  },
+  {
+    title:'亡羊補牢', pinyin:'ㄨㄤˊ ㄧㄤˊ ㄅㄨˇ ㄌㄠˊ', emoji:'🐑🚧',
+    story:'牧羊人的羊圈破了一個洞,晚上跑丟了一隻羊。鄰居勸他趕快把洞補起來,牧羊人一開始沒有理會。後來又丟了一隻羊,他才趕緊把洞補好,從此以後羊就再也沒有丟過了。',
+    meaning:'比喻發現錯誤後及時補救,還來得及,不會太遲。',
+    quiz:{q:'牧羊人補好洞之後,結果怎麼樣了?', options:['羊還是一直跑掉','羊再也沒丟過','他不養羊了'], answer:1}
+  }
+];
+
+const $ = s => document.querySelector(s);
+const $all = s => document.querySelectorAll(s);
+
+function showScreen(id){
+  $all('.screen').forEach(s=>s.classList.add('hidden'));
+  $('#'+id).classList.remove('hidden');
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function speak(text, lang){
+  try{
+    if(!('speechSynthesis' in window)) return;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang === 'zh' ? 'zh-TW' : 'en-US';
+    u.rate = 0.85;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+const state = { profile:null, lang:null, mode:null, category:null, stars:0 };
+
+function addStars(n){
+  state.stars += n;
+  $('#starCount').textContent = state.stars;
+  const pill = $('#starsPill');
+  pill.classList.remove('burst'); void pill.offsetWidth; pill.classList.add('burst');
+}
+
+function showCelebrate(text){
+  $('#celebrateText').textContent = text + '  ⭐ x' + state.stars;
+  $('#celebrate').classList.remove('hidden');
+}
+
+$('#celebrateClose').addEventListener('click', ()=>{
+  $('#celebrate').classList.add('hidden');
+  if(state.mode==='story'){ openStoryList(); }
+  else{ openCategoryScreen(); }
+});
+
+$('#btnHome').addEventListener('click', ()=>{
+  state.profile=null; state.lang=null; state.mode=null; state.category=null;
+  showScreen('screen-profile');
+});
+
+$all('.profile-card').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    state.profile = parseInt(btn.dataset.age,10);
+    $('#menuTitle').textContent = state.profile + '歲小朋友的學習選單';
+    if(!state.lang) state.lang = 'zh';
+    updateLangButtons();
+    renderModeGrid();
+    showScreen('screen-menu');
+  });
+});
+
+$all('.lang-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    state.lang = btn.dataset.lang;
+    updateLangButtons();
+    renderModeGrid();
+  });
+});
+
+function updateLangButtons(){
+  $all('.lang-btn').forEach(b=> b.classList.toggle('active', b.dataset.lang===state.lang));
+}
+
+function renderModeGrid(){
+  const modes = [
+    {id:'flashcard', label:'單字卡', emoji:'🃏'},
+    {id:'match', label:'配對遊戲', emoji:'🎯'}
+  ];
+  if(state.profile===6){
+    modes.push({id:'spell', label:'拼詞遊戲', emoji:'🧩'});
+    if(state.lang==='zh') modes.push({id:'story', label:'成語故事', emoji:'📚'});
+  }
+  const grid = $('#modeGrid');
+  grid.innerHTML='';
+  modes.forEach(m=>{
+    const btn = document.createElement('button');
+    btn.className='mode-card';
+    btn.innerHTML = '<span class="mode-emoji">'+m.emoji+'</span>'+m.label;
+    btn.addEventListener('click', ()=>{
+      state.mode=m.id;
+      if(m.id==='story'){ openStoryList(); }
+      else{ openCategoryScreen(); }
+    });
+    grid.appendChild(btn);
+  });
+}
+
+$('#btnBackToMenu').addEventListener('click', ()=> showScreen('screen-menu'));
+$('#btnBackFromFlash').addEventListener('click', ()=> showScreen('screen-category'));
+$('#btnBackFromMatch').addEventListener('click', ()=> showScreen('screen-category'));
+$('#btnBackFromSpell').addEventListener('click', ()=> showScreen('screen-category'));
+
+function openCategoryScreen(){
+  const cats = Object.keys((DATA[state.lang] && DATA[state.lang][state.profile]) || {});
+  $('#categoryTitle').textContent = '選一個主題';
+  const grid = $('#categoryGrid');
+  grid.innerHTML='';
+  cats.forEach(catKey=>{
+    const label = CATLABELS[state.lang][catKey] || catKey;
+    const items = DATA[state.lang][state.profile][catKey];
+    const preview = (items[0] && items[0].e) || '⭐';
+    const btn = document.createElement('button');
+    btn.className='category-card';
+    btn.innerHTML = '<span class="category-emoji">'+preview+'</span>'+label;
+    btn.addEventListener('click', ()=>{ state.category=catKey; startMode(); });
+    grid.appendChild(btn);
+  });
+  showScreen('screen-category');
+}
+
+function startMode(){
+  if(state.mode==='flashcard') startFlashcard();
+  else if(state.mode==='match') startMatch();
+  else if(state.mode==='spell') startSpell();
+}
+
+// ---- Flashcard ----
+let flashItems=[], flashIndex=0;
+function startFlashcard(){
+  flashItems = DATA[state.lang][state.profile][state.category];
+  flashIndex = 0;
+  $('#flashCategoryTitle').textContent = CATLABELS[state.lang][state.category] || state.category;
+  renderFlashDots();
+  renderFlashCard();
+  showScreen('screen-flashcard');
+}
+function renderFlashDots(){
+  const dots = $('#flashDots');
+  dots.innerHTML='';
+  flashItems.forEach(()=>{
+    const d=document.createElement('span'); d.className='dot'; dots.appendChild(d);
+  });
+  updateFlashDots();
+}
+function updateFlashDots(){
+  $all('#flashDots .dot').forEach((d,i)=> d.classList.toggle('active', i===flashIndex));
+}
+function renderFlashCard(){
+  const item = flashItems[flashIndex];
+  $('#flashEmoji').textContent = item.e;
+  $('#flashWord').textContent = item.w;
+  const pin = $('#flashPinyin');
+  if(item.p){ pin.textContent = item.p; pin.style.display='block'; }
+  else{ pin.textContent=''; pin.style.display='none'; }
+  updateFlashDots();
+  const card = $('#flashCard');
+  card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop');
+  speak(item.w, state.lang);
+}
+$('#flashPrev').addEventListener('click', ()=>{
+  flashIndex = (flashIndex - 1 + flashItems.length) % flashItems.length;
+  renderFlashCard();
+});
+$('#flashNext').addEventListener('click', ()=>{
+  flashIndex = (flashIndex + 1) % flashItems.length;
+  renderFlashCard();
+});
+$('#flashSpeak').addEventListener('click', ()=>{
+  speak(flashItems[flashIndex].w, state.lang);
+});
+$('#flashFinish').addEventListener('click', ()=>{
+  addStars(1);
+  showCelebrate('太棒了，都認識了！');
+});
+
+// ---- Match ----
+let matchState = { cards:[], selected:null, matchedCount:0, total:0 };
+function startMatch(){
+  const items = DATA[state.lang][state.profile][state.category];
+  const n = Math.min(items.length, 6);
+  const chosen = shuffle(items).slice(0, n);
+  let cards=[];
+  chosen.forEach((item, idx)=>{
+    cards.push({key:idx, type:'e', display:item.e, matched:false});
+    cards.push({key:idx, type:'w', display:item.w + (item.p ? (' '+item.p) : ''), matched:false});
+  });
+  cards = shuffle(cards);
+  matchState = { cards, selected:null, matchedCount:0, total:chosen.length };
+  $('#matchCategoryTitle').textContent = CATLABELS[state.lang][state.category] || state.category;
+  renderMatchGrid();
+  showScreen('screen-match');
+}
+function renderMatchGrid(){
+  const grid = $('#matchGrid');
+  grid.innerHTML='';
+  matchState.cards.forEach((c,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'match-card' + (c.matched?' matched':'') + (c.type==='w'?' word':'');
+    btn.textContent = c.display;
+    btn.disabled = c.matched;
+    btn.addEventListener('click', ()=> onMatchClick(i));
+    grid.appendChild(btn);
+  });
+}
+function onMatchClick(i){
+  const card = matchState.cards[i];
+  if(card.matched) return;
+  const grid = $('#matchGrid');
+  if(matchState.selected===null){
+    matchState.selected=i;
+    grid.children[i].classList.add('selected');
+    return;
+  }
+  if(matchState.selected===i){
+    grid.children[i].classList.remove('selected');
+    matchState.selected=null;
+    return;
+  }
+  const first = matchState.cards[matchState.selected];
+  const second = card;
+  if(first.key===second.key && first.type!==second.type){
+    first.matched=true; second.matched=true;
+    matchState.matchedCount++;
+    addStars(1);
+    const finishedAll = matchState.matchedCount===matchState.total;
+    matchState.selected=null;
+    renderMatchGrid();
+    if(finishedAll){
+      setTimeout(()=> showCelebrate('全部配對成功！'), 400);
+    }
+  } else {
+    grid.children[matchState.selected].classList.add('wrong');
+    grid.children[i].classList.add('wrong');
+    const selIdx = matchState.selected;
+    setTimeout(()=>{
+      const g = $('#matchGrid');
+      if(g.children[selIdx]) g.children[selIdx].classList.remove('selected','wrong');
+      if(g.children[i]) g.children[i].classList.remove('wrong');
+      matchState.selected=null;
+    }, 700);
+  }
+}
+
+// ---- Spell ----
+let spellState = { items:[], index:0, target:[], slots:[], tray:[] };
+function startSpell(){
+  const items = DATA[state.lang][state.profile][state.category];
+  spellState.items = shuffle(items);
+  spellState.index = 0;
+  $('#spellCategoryTitle').textContent = CATLABELS[state.lang][state.category] || state.category;
+  loadSpellWord();
+  showScreen('screen-spell');
+}
+function loadSpellWord(){
+  const item = spellState.items[spellState.index];
+  const chars = state.lang==='zh' ? Array.from(item.w) : item.w.toUpperCase().split('');
+  spellState.target = chars;
+  spellState.slots = new Array(chars.length).fill(null);
+  spellState.tray = shuffle(chars.map((c,i)=>({char:c, used:false, id:i})));
+  const hint = $('#spellHint');
+  hint.innerHTML = '<span class="spell-emoji">'+item.e+'</span><button class="speak-btn" id="spellSpeak">🔊 唸一次</button>';
+  $('#spellSpeak').addEventListener('click', ()=> speak(item.w, state.lang));
+  renderSpell();
+  speak(item.w, state.lang);
+}
+function renderSpell(){
+  const slotsEl = $('#spellSlots');
+  slotsEl.innerHTML='';
+  spellState.slots.forEach((val,i)=>{
+    const d=document.createElement('div');
+    d.className='spell-slot'+(val!==null?' filled':'');
+    d.textContent = val!==null ? (spellState.tray.find(t=>t.id===val)||{}).char||'' : '';
+    d.addEventListener('click', ()=>{
+      if(spellState.slots[i]!==null){
+        const tid = spellState.slots[i];
+        const t = spellState.tray.find(t=>t.id===tid);
+        if(t) t.used=false;
+        spellState.slots[i]=null;
+        renderSpell();
+      }
+    });
+    slotsEl.appendChild(d);
+  });
+  const tray = $('#spellTray');
+  tray.innerHTML='';
+  spellState.tray.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='spell-tile'+(t.used?' used':'');
+    b.textContent=t.char;
+    b.disabled=t.used;
+    b.addEventListener('click', ()=> onTileClick(t.id));
+    tray.appendChild(b);
+  });
+}
+function onTileClick(tileId){
+  const tile = spellState.tray.find(t=>t.id===tileId);
+  if(!tile || tile.used) return;
+  const emptyIndex = spellState.slots.findIndex(s=>s===null);
+  if(emptyIndex===-1) return;
+  tile.used=true;
+  spellState.slots[emptyIndex]=tileId;
+  renderSpell();
+  checkSpellComplete();
+}
+function checkSpellComplete(){
+  if(spellState.slots.every(s=>s!==null)){
+    const attempt = spellState.slots.map(id=> (spellState.tray.find(t=>t.id===id)||{}).char||'').join('');
+    const target = spellState.target.join('');
+    const slotsEl = $('#spellSlots');
+    if(attempt===target){
+      addStars(1);
+      slotsEl.classList.add('correct');
+      setTimeout(()=>{
+        slotsEl.classList.remove('correct');
+        spellState.index++;
+        if(spellState.index >= spellState.items.length){
+          showCelebrate('全部完成，你好棒！');
+        } else {
+          loadSpellWord();
+        }
+      }, 900);
+    } else {
+      slotsEl.classList.add('wrong');
+      setTimeout(()=>{
+        slotsEl.classList.remove('wrong');
+        spellState.tray.forEach(t=>t.used=false);
+        spellState.slots = new Array(spellState.target.length).fill(null);
+        renderSpell();
+      }, 800);
+    }
+  }
+}
+
+// ---- Idiom Stories ----
+let storyIndex = 0;
+function openStoryList(){
+  const grid = $('#storyListGrid');
+  grid.innerHTML='';
+  IDIOMS.forEach((item, idx)=>{
+    const btn = document.createElement('button');
+    btn.className='category-card';
+    btn.innerHTML = '<span class="category-emoji">'+item.emoji+'</span>'+item.title;
+    btn.addEventListener('click', ()=>{ storyIndex=idx; renderStory(); showScreen('screen-story'); });
+    grid.appendChild(btn);
+  });
+  showScreen('screen-storylist');
+}
+function renderStory(){
+  const item = IDIOMS[storyIndex];
+  $('#storyEmoji').textContent = item.emoji;
+  $('#storyTitle').textContent = item.title;
+  $('#storyPinyin').textContent = item.pinyin;
+  $('#storyText').textContent = item.story;
+  renderStoryQuiz(item);
+  const card = $('#storyCard');
+  card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop');
+  speak(item.title, 'zh');
+}
+function renderStoryQuiz(item){
+  const quizEl = $('#storyQuiz');
+  quizEl.innerHTML='';
+  const q = document.createElement('p');
+  q.style.fontWeight='700';
+  q.style.marginBottom='8px';
+  q.style.fontFamily="'Baloo 2',sans-serif";
+  q.textContent = '💡 ' + item.quiz.q;
+  quizEl.appendChild(q);
+  item.quiz.options.forEach((opt,i)=>{
+    const b = document.createElement('button');
+    b.className='mode-card';
+    b.style.width='100%';
+    b.style.padding='10px';
+    b.style.fontSize='14px';
+    b.style.marginBottom='8px';
+    b.style.flexDirection='row';
+    b.style.justifyContent='center';
+    b.textContent = opt;
+    b.addEventListener('click', ()=> onQuizAnswer(i, item, b));
+    quizEl.appendChild(b);
+  });
+}
+function onQuizAnswer(i, item, btnEl){
+  if(i===item.quiz.answer){
+    btnEl.style.background='var(--leaf)'; btnEl.style.color='#fff';
+    addStars(1);
+    setTimeout(()=>{
+      if(storyIndex < IDIOMS.length-1){ storyIndex++; renderStory(); }
+      else{ showCelebrate('成語故事都讀完了，你好棒！'); }
+    }, 900);
+  } else {
+    btnEl.style.background='var(--red)'; btnEl.style.color='#fff';
+    setTimeout(()=>{ btnEl.style.background=''; btnEl.style.color=''; }, 600);
+  }
+}
+$('#storyPrev').addEventListener('click', ()=>{
+  storyIndex = (storyIndex - 1 + IDIOMS.length) % IDIOMS.length;
+  renderStory();
+});
+$('#storyNext').addEventListener('click', ()=>{
+  storyIndex = (storyIndex + 1) % IDIOMS.length;
+  renderStory();
+});
+$('#storySpeak').addEventListener('click', ()=>{
+  speak(IDIOMS[storyIndex].story, 'zh');
+});
+$('#btnBackFromStorylist').addEventListener('click', ()=> showScreen('screen-menu'));
+$('#btnBackFromStory').addEventListener('click', ()=> showScreen('screen-storylist'));
+
+showScreen('screen-profile');
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+})();
+</script>
+</body>
+</html>
